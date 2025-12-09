@@ -68,7 +68,27 @@ Maps common tasks to CLI-specific reference files
 | `-c connection` | Global | Use named connection |
 | `--database`, `--schema` | Connection | Override default db/schema |
 
+### Execution Modes
+- `snow sql` (no args) - Interactive REPL for human exploration sessions
+- `snow sql -q "..."` - Single query execution (use this for agent workflows)
+- `snow sql -f file.sql` - Execute SQL file
+
 ### Output Management
 - Default to LIMIT 100 for exploration queries
 - Use `--format JSON` when processing results programmatically
 - Use `--format TABLE` for human review
+
+## Baseline Test Findings
+
+### Agent did well without skill:
+- Instinct to check `--help` first
+- Knew to use LIMIT on queries
+- Understood to count rows before fetching large datasets
+- Knew DESCRIBE TABLE and INFORMATION_SCHEMA patterns
+
+### Gaps skill should address:
+1. CLI command uncertainty (guessed wrong flags like `-o` instead of `--format`)
+2. Didn't know about `snow object` commands
+3. No knowledge of specific flags (`--silent`, `-c`)
+4. No SQL documentation reference
+5. Over-cautious - skill can establish sensible defaults for autonomous exploration

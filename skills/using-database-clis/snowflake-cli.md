@@ -22,7 +22,9 @@ snow sql -q "SELECT * FROM &{table}" -D table=my_table
 
 ## Schema Exploration
 
-Two approaches - CLI commands or SQL:
+Two approaches - CLI commands or SQL.
+
+**Note:** Prefer `snow sql` over `snow object` commands. The `snow object list` TABLE output is often unreadable with wide columns. SQL queries with `--format JSON` are more reliable.
 
 | Task | CLI Command | SQL Alternative |
 |------|-------------|-----------------|
@@ -50,15 +52,17 @@ Two approaches - CLI commands or SQL:
 ## Output Formats
 
 ```bash
-# Human-readable table (default)
-snow sql -q "SELECT * FROM t LIMIT 10" --format TABLE
-
-# For programmatic processing
+# Recommended default - reliable for any schema
 snow sql -q "SELECT * FROM t LIMIT 10" --format JSON
+
+# Human-readable - ONLY for narrow results (few short columns)
+snow sql -q "SELECT day_date, value FROM t LIMIT 10" --format TABLE
 
 # For export
 snow sql -q "SELECT * FROM t" --format CSV > output.csv
 ```
+
+**TABLE format limitations:** Columns wrap and mangle when data is wide. Use JSON for tables with many columns or long string values.
 
 ## Typical Exploration Session
 
@@ -67,19 +71,19 @@ snow sql -q "SELECT * FROM t" --format CSV > output.csv
 snow sql -q "SELECT CURRENT_DATABASE(), CURRENT_SCHEMA(), CURRENT_WAREHOUSE()"
 
 # 1. What databases exist?
-snow object list database
+snow sql -q "SHOW DATABASES" --format JSON
 
 # 2. What schemas in my database?
-snow object list schema --in database ANALYTICS
+snow sql -q "SHOW SCHEMAS IN DATABASE ANALYTICS" --format JSON
 
 # 3. Find customer-related tables
-snow object list table --in schema ANALYTICS.PUBLIC -l '%CUSTOMER%'
+snow sql -q "SHOW TABLES IN SCHEMA ANALYTICS.PUBLIC LIKE '%CUSTOMER%'" --format JSON
 
 # 4. What columns does it have?
-snow object describe table ANALYTICS.PUBLIC.CUSTOMERS
+snow sql -q "DESCRIBE TABLE ANALYTICS.PUBLIC.CUSTOMERS" --format JSON
 
 # 5. Sample the data
-snow sql -q "SELECT * FROM ANALYTICS.PUBLIC.CUSTOMERS LIMIT 10"
+snow sql -q "SELECT * FROM ANALYTICS.PUBLIC.CUSTOMERS LIMIT 10" --format JSON
 ```
 
 **Note:** Snowflake identifiers are case-insensitive and stored uppercase unless quoted. Pattern `'%customer%'` and `'%CUSTOMER%'` are equivalent.

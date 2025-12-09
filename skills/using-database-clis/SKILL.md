@@ -32,7 +32,8 @@ Start broad, narrow down:
 
 **Defaults for exploration:**
 - Always use `LIMIT 100` unless you need more
-- Use `--format TABLE` for readable output
+- Use `--format JSON` for reliable output (TABLE format mangles wide columns)
+- Use `--format TABLE` only for narrow result sets (few columns, short values)
 - Count rows first if result size is uncertain
 
 **For large results:**
@@ -59,8 +60,8 @@ Start broad, narrow down:
 **Forgetting LIMIT:** Query returns 100k rows, floods context
 **Fix:** Default to `LIMIT 100`, increase only if needed
 
-**Wrong output format:** JSON when you wanted readable table
-**Fix:** Use `--format TABLE` for exploration, JSON/CSV for processing
+**Wrong output format:** TABLE mangles wide data, JSON too verbose for simple queries
+**Fix:** Use `--format JSON` by default; TABLE only for narrow results (3-4 short columns)
 
 **Querying before exploring:** Write complex query on wrong table
 **Fix:** DESCRIBE table and sample data first

@@ -39,6 +39,7 @@ gh issue create -R owner/repo --title "Title" --body "Body" --label "bug"
 gh issue create -R owner/repo --title "Title" --body "Body" --assignee "@me"
 
 # Create and add to project in one command
+# NOTE: --project takes the project DISPLAY NAME, not the number
 gh issue create -R owner/repo --title "Title" --body "Body" --project "Project Name"
 
 # View issue
@@ -63,6 +64,7 @@ gh issue list -R owner/repo --label "bug" --state open
 
 ```bash
 # Create draft item (for cross-repo/spike work)
+# NOTE: Returns no output on success. Verify with item-list after.
 gh project item-create 1 --owner obra --title "Title" --body "Description"
 
 # Add existing issue/PR to project
@@ -87,7 +89,7 @@ gh project item-archive 1 --owner obra --id ITEM_ID
 ### Create Issue and Add to Project
 
 ```bash
-# Method 1: Use --project flag (by project name)
+# Method 1: Use --project flag (takes project DISPLAY NAME, not number)
 gh issue create -R owner/repo \
   --title "[Feature] New notification preferences" \
   --body "## Summary

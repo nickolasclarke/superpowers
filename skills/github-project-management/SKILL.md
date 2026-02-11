@@ -1,6 +1,6 @@
 ---
 name: github-project-management
-description: Use when completing design docs, creating implementation plans, discovering bugs during unrelated work, or finishing branches - integrates GitHub issue tracking into development workflow with confirmation before creating issues
+description: Use when completing design docs, creating implementation plans, discovering bugs during unrelated work, or finishing branches — any development checkpoint where work should be tracked as GitHub issues or project items
 ---
 
 # GitHub Project Management
@@ -11,73 +11,58 @@ Integrate GitHub issue tracking into natural development workflow. Offer to crea
 
 **Core principle:** Work should be tracked where it happens, not as a separate administrative task.
 
+## When to Use
+
+- After completing a design doc (brainstorming)
+- After writing an implementation plan (writing-plans)
+- When you discover a bug or tech debt unrelated to current work
+- After finishing a development branch (finishing-a-development-branch)
+
+## When NOT to Use
+
+- Sprint planning, backlog grooming, or roadmap organization
+- Automated issue creation without user confirmation
+- Project-specific conventions (put those in CLAUDE.md)
+
 ## Configuration
 
-Each repo specifies its project in CLAUDE.md:
-
-```markdown
-## GitHub Project
-
-github_project: owner/project-number
-```
-
-Examples: `github_project: obra/1` (user) or `github_project: my-org/5` (org)
+Each repo specifies its project in CLAUDE.md as `github_project: owner/project-number` (e.g., `obra/1` for user, `my-org/5` for org).
 
 If missing, ask: "No project configured. Create as repo-only issue, or specify a project?"
-
-For cross-repo items, always ask which project to use.
 
 ## Integration Points
 
 ### 1. After Brainstorming
 
+**Follows:** superpowers:brainstorming
+
 **Trigger:** Design doc committed to `docs/plans/`
 
-**Action:** Ask "Create a tracking issue for this feature?"
-
-If yes, propose:
-```
-Title: [Feature] <brief description>
-Body: Summary + link to design doc + acceptance criteria
-```
-
-Wait for approval, then create and add to project.
+**Action:** Ask "Create a tracking issue for this feature?" If yes, propose title (`[Feature] <description>`), summary, link to design doc, and acceptance criteria. Wait for approval before creating.
 
 ### 2. After Writing Plans
+
+**Follows:** superpowers:writing-plans
 
 **Trigger:** Implementation plan completed
 
 **Action:** Ask "Create tracking issues for this plan?"
 
-Options:
-- A) Single parent issue linking to plan
-- B) Parent issue with sub-issues for major tasks (hierarchical tracking)
-- C) Individual issues per major task (flat structure)
-- D) Skip
-
-For option B, use GitHub's sub-issues feature to create parent/child relationships. See gh-reference.md for GraphQL commands (requires node IDs, not issue numbers).
+Options: A) Single parent issue linking to plan, B) Parent with sub-issues (see gh-reference.md for GraphQL commands), C) Individual issues per task, D) Skip.
 
 ### 3. During Implementation (Bug/Debt Discovery)
 
 **Trigger:** Discovered bug or tech debt unrelated to current task
 
-**Decision tree:**
-- Can fix in <5 minutes without derailing current work? → Fix it, no issue needed
-- Complex, requires investigation, or would derail work? → Offer to create issue
+Can fix in <5 minutes without derailing? Fix it. Otherwise, offer to create issue.
 
-**Action:** "I found an issue: <description>. Create an issue to track this?"
-
-If yes, propose:
-```
-Title: [Bug] or [Tech Debt] <description>
-Body: Context (what you were doing), location, description, potential impact
-```
-
-**This is NOT "overstepping"** — offering to track work is part of the development workflow, not project management politics.
+**Action:** "I found an issue: <description>. Create an issue to track this?" If yes, propose title (`[Bug]` or `[Tech Debt]`), context, location, and impact. Wait for approval.
 
 ### 4. After Finishing Branch
 
-**Trigger:** Branch work complete, running finishing-a-development-branch
+**Follows:** superpowers:finishing-a-development-branch
+
+**Trigger:** Branch work complete
 
 **Action:** Check for related issues:
 - Issue references in commits (`#123`, `fixes #456`)
@@ -94,32 +79,16 @@ If PR created, remind: issues with `fixes #N` auto-close on merge.
 | Single-repo work (bug, feature) | Repo issue via `gh issue create` |
 | Cross-repo, spike, unclear scope | Project draft via `gh project item-create` |
 
-Repo issues can be referenced in commits and auto-close via PR.
+**Note:** Some repos have issues disabled. If `gh issue create` fails, use a project draft item instead.
 
-## Common Rationalizations (Don't Fall For These)
+## Common Mistakes
 
-| Excuse | Reality |
-|--------|---------|
-| "Creating issues is overstepping" | Offering to track work is collaboration, not politics |
-| "It's in git, no need for issue" | Git tracks code, issues track work intent and status |
-| "Administrative overhead" | 30 seconds now vs forgotten work later |
-| "Not my domain" | You're part of the team, tracking is everyone's job |
+| Mistake | Fix |
+|---------|-----|
+| Creating issues without user confirmation | Always propose details and wait for explicit approval |
+| Using project number with `--project` flag | `--project` takes the display name, not the number. Use `--project "My Project"` or the two-step method |
+| Assuming `item-create` succeeded with no output | `gh project item-create` is silent on success. Verify with `item-list --format json` |
 
 ## Quick Reference
 
-See gh-reference.md for CLI commands.
-
-**Minimum auth:** `gh auth refresh -s project`
-
-**Most common operations:**
-```bash
-# Create issue and add to project
-gh issue create -R owner/repo --title "Title" --body "Body"
-gh project item-add PROJECT_NUM --owner OWNER --url ISSUE_URL
-
-# Create project draft (cross-repo)
-gh project item-create PROJECT_NUM --owner OWNER --title "Title" --body "Body"
-
-# Check project config
-gh project list --owner OWNER
-```
+See gh-reference.md for CLI commands. **Minimum auth:** `gh auth refresh -s project`
